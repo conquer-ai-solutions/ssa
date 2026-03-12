@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian CDP — Customer Experience Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas:    #F4F3F0;
+  --white:     #FFFFFF;
+  --border:    #E8E6E1;
+  --border-hi: #D4D0C8;
+  --ink-1:     #1A1815;
+  --ink-2:     #5C5A55;
+  --ink-3:     #9E9B94;
+  --ink-4:     #C4C1BA;
+  --accent:    #1C4A3E;
+  --accent-2:  #2A6354;
+  --accent-bg: #EEF4F2;
+  --red:       #C53030;
+  --red-bg:    #FEF2F2;
+  --red-mid:   #FED7D7;
+  --amber:     #B45309;
+  --amber-bg:  #FFFBEB;
+  --amber-mid: #FDE68A;
+  --green:     #166534;
+  --green-bg:  #F0FDF4;
+  --green-mid: #BBF7D0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
+  --r:         10px;
+  --r-sm:      6px;
+  --r-lg:      14px;
+  --sidebar-w: 220px;
+  --topbar-h:  52px;
+  --font:      'Plus Jakarta Sans', system-ui, sans-serif;
+  --serif:     'Instrument Serif', Georgia, serif;
+  --ease:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out:  cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  font-family: var(--font);
+  background: var(--canvas);
+  color: var(--ink-1);
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+/* ── SIDEBAR ──────────────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-wordmark {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: var(--ink-1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-wordmark-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.sidebar-sub {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}
+.sidebar-section {
+  padding: 16px 12px 8px;
+}
+.sidebar-section-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  padding: 0 8px;
+  margin-bottom: 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.14s var(--ease);
+  margin-bottom: 1px;
+}
+.nav-item:hover { background: var(--canvas); color: var(--ink-1); }
+.nav-item.active {
+  background: var(--ink-1);
+  color: var(--white);
+  font-weight: 600;
+}
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-icon {
+  width: 16px; height: 16px;
+  opacity: 0.5;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: var(--red);
+  color: #fff;
+}
+.nav-item.active .nav-badge { background: rgba(255,255,255,0.25); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.14s;
+}
+.sidebar-user:hover { background: var(--canvas); }
+.user-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1C4A3E, #4A7C6F);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.user-name { font-size: 12.5px; font-weight: 600; color: var(--ink-1); }
+.user-role { font-size: 11px; color: var(--ink-3); }
+
+/* ── TOPBAR ───────────────────────────────────────────────────────── */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-w);
+  right: 0;
+  height: var(--topbar-h);
+  background: rgba(244,243,240,0.90);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 12px;
+  z-index: 40;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+.breadcrumb-sep { color: var(--ink-4); }
+.breadcrumb-cur { font-weight: 600; color: var(--ink-1); }
+.breadcrumb-par { color: var(--ink-3); cursor: pointer; }
+.breadcrumb-par:hover { color: var(--ink-2); }
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.topbar-meta {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  padding: 0 12px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+/* ── MAIN CONTENT ─────────────────────────────────────────────────── */
+.main {
+  position: fixed;
+  top: var(--topbar-h);
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.screen::-webkit-scrollbar { width: 5px; }
+.screen::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.screen.out {
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+}
+.page { max-width: 1180px; margin: 0 auto; padding: 32px 28px 60px; }
+
+/* ── STAGGER ANIMATION ────────────────────────────────────────────── */
+.screen.active .stagger > * {
+  animation: riseIn 0.5s var(--ease) both;
+}
+.screen.active .stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.screen.active .stagger > *:nth-child(2) { animation-delay: 0.08s; }
+.screen.active .stagger > *:nth-child(3) { animation-delay: 0.13s; }
+.screen.active .stagger > *:nth-child(4) { animation-delay: 0.18s; }
+.screen.active .stagger > *:nth-child(5) { animation-delay: 0.23s; }
+.screen.active .stagger > *:nth-child(6) { animation-delay: 0.28s; }
+.screen.active .stagger > *:nth-child(7) { animation-delay: 0.33s; }
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── TYPOGRAPHY ───────────────────────────────────────────────────── */
+.page-header { margin-bottom: 28px; }
+.page-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.page-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  color: var(--ink-1);
+  line-height: 1.2;
+}
+.page-title em { font-style: italic; color: var(--ink-2); }
+.page-desc { font-size: 13.5px; color: var(--ink-2); margin-top: 6px; line-height: 1.5; }
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+.card-title { font-size: 13.5px; font-weight: 600; color: var(--ink-1); letter-spacing: -0.2px; }
+.body { font-size: 13px; line-height: 1.65; color: var(--ink-2); }
+.mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; }
+
+/* ── CARDS ────────────────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  padding: 20px 22px;
+  transition: box-shadow 0.2s var(--ease);
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.card-flush { padding: 0; overflow: hidden; }
+
+/* ── LAYOUT ───────────────────────────────────────────────────────── */
+.row { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+.col { flex: 1; min-width: 0; }
+.col-2 { flex: 2; min-width: 0; }
+.col-3 { flex: 3; min-width: 0; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* ── STAT CARDS ───────────────────────────────────────────────────── */
+.kpi {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  transition: all 0.2s var(--ease);
+}
+.kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.kpi-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -1px;
+  color: var(--ink-1);
+  line-height: 1;
+}
+.kpi-delta {
+  font-size: 11.5px;
+  margin-top: 6px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-note { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+
+/* ── STATUS CHIPS ─────────────────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.chip-red    { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-mid); }
+.chip-amber  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-mid); }
+.chip-green  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-mid); }
+.chip-neutral{ background: var(--canvas); color: var(--ink-2); border: 1px solid var(--border); }
+.chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.dot-red   { background: var(--red); }
+.dot-amber { background: var(--amber); }
+.dot-green { background: var(--green); }
+
+/* ── RISK SCORE ───────────────────────────────────────────────────── */
+.risk-score {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+}
+.risk-high  { color: var(--red); }
+.risk-med   { color: var(--amber); }
+.risk-low   { color: var(--green); }
+
+/* ── BUTTONS ──────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.14s var(--ease);
+  cursor: pointer;
+}
+.btn-dark {
+  background: var(--ink-1);
+  color: var(--white);
+}
+.btn-dark:hover { background: #2D2B27; }
+.btn-outline {
+  background: var(--white);
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--border-hi); color: var(--ink-1); box-shadow: var(--shadow-sm); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-3);
+}
+.btn-ghost:hover { background: var(--canvas); color: var(--ink-2); }
+.btn-sm { padding: 5px 12px; font-size: 11.5px; }
+.btn-green-solid { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-mid); }
+.btn-green-solid:hover { background: var(--green-mid); }
+.btn-red-soft { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-mid); }
+
+/* ── TABLE ────────────────────────────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; }
+.table th {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 10px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--canvas);
+}
+.table th:first-child { border-radius: 0; }
+.table td {
+  font-size: 13px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink-2);
+  vertical-align: middle;
+}
+.table tbody tr { transition: background 0.1s; cursor: pointer; }
+.table tbody tr:hover td { background: #F9F8F5; }
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr.active-row td { background: var(--accent-bg); }
+.table tbody tr.active-row td:first-child {
+  border-left: 3px solid var(--accent);
+}
+td strong { color: var(--ink-1); font-weight: 600; }
+
+/* ── AI ANNOTATION ────────────────────────────────────────────────── */
+.ai-note {
+  border-left: 2px solid var(--border-hi);
+  padding: 12px 16px;
+  margin-top: 14px;
+  background: var(--canvas);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.ai-note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.ai-tag {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--border);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.ai-note-title { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.ai-note p { font-size: 12px; color: var(--ink-2); line-height: 1.6; }
+.ai-note ul { padding-left: 14px; margin-top: 4px; }
+.ai-note ul li { font-size: 12px; color: var(--ink-2); margin-bottom: 3px; line-height: 1.55; }
+.flag { color: var(--amber); font-style: italic; }
+
+/* ── CONFIDENCE ───────────────────────────────────────────────────── */
+.conf-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.conf-label { font-size: 11.5px; color: var(--ink-3); flex-shrink: 0; }
+.conf-track {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.conf-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.8s var(--ease); }
+.conf-val { font-size: 11.5px; font-weight: 600; color: var(--ink-2); flex-shrink: 0; }
+
+/* ── BAR CHART ────────────────────────────────────────────────────── */
+.bar-list { display: flex; flex-direction: column; gap: 12px; }
+.bar-item { display: flex; align-items: center; gap: 10px; }
+.bar-lbl { font-size: 12.5px; color: var(--ink-2); width: 200px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-lbl-sm { width: 72px; }
+.bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.9s var(--ease); }
+.bar-pct { font-size: 12px; font-weight: 600; color: var(--ink-2); width: 38px; text-align: right; flex-shrink: 0; }
+
+/* ── TIMELINE ─────────────────────────────────────────────────────── */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 1px;
+  background: var(--border);
+}
+.tl-item { position: relative; padding-bottom: 18px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot {
+  position: absolute;
+  left: -17px; top: 4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+}
+.tl-time { font-size: 10.5px; color: var(--ink-3); font-family: monospace; margin-bottom: 3px; }
+.tl-text { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+
+/* ── EMAIL DRAFT ──────────────────────────────────────────────────── */
+.email-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.email-toolbar {
+  padding: 10px 16px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.email-toolbar-label { font-size: 11px; font-weight: 600; color: var(--ink-3); letter-spacing: 0.4px; }
+.email-field {
+  padding: 9px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.email-field-key { font-size: 10.5px; font-weight: 700; color: var(--ink-3); width: 32px; letter-spacing: 0.3px; flex-shrink: 0; }
+.email-field-val { font-size: 13px; color: var(--ink-2); }
+.email-body-text { padding: 18px 18px 20px; font-size: 13.5px; color: var(--ink-1); line-height: 1.75; }
+.email-body-text p { margin-bottom: 12px; }
+.email-body-text p:last-child { margin-bottom: 0; }
+.highlight { background: #FFFBEB; padding: 1px 4px; border-radius: 3px; color: var(--amber); font-style: italic; font-size: 12.5px; }
+
+/* ── SIGNAL TAGS ──────────────────────────────────────────────────── */
+.signal { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+.signal-bad  { background: var(--red-bg);   color: var(--red); }
+.signal-warn { background: var(--amber-bg); color: var(--amber); }
+.signal-good { background: var(--green-bg); color: var(--green); }
+
+/* ── DIVIDER ──────────────────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* ── ASSUMPTION NOTICE ────────────────────────────────────────────── */
+.assumption-bar {
+  position: fixed;
+  bottom: 0;
+  left: var(--sidebar-w);
+  right: 0;
+  padding: 6px 24px;
+  background: var(--amber-bg);
+  border-top: 1px solid var(--amber-mid);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 40;
+}
+.assumption-bar span { font-size: 11px; color: var(--amber); font-style: italic; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-wordmark">
+      <div class="sidebar-wordmark-dot"></div>
+      Meridian
+    </div>
+    <div class="sidebar-sub">Customer Dissatisfaction Prediction · Clearpath Workforce Solutions <span class="flag">[illustrative]</span></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Operations</div>
+    <div class="nav-item active" id="nav-0" onclick="goTo(0)">
+      <span class="nav-icon">◈</span> Risk Dashboard
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" id="nav-1" onclick="goTo(1)">
+      <span class="nav-icon">◉</span> Account Detail
+    </div>
+    <div class="nav-item" id="nav-2" onclick="goTo(2)">
+      <span class="nav-icon">↗</span> Interventions
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Quality</div>
+    <div class="nav-item" id="nav-3" onclick="goTo(3)">
+      <span class="nav-icon">⊕</span> Root Cause
+    </div>
+    <div class="nav-item" id="nav-4" onclick="goTo(4)">
+      <span class="nav-icon">◷</span> SLA Monitor
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Leadership</div>
+    <div class="nav-item" id="nav-5" onclick="goTo(5)">
+      <span class="nav-icon">⬡</span> Executive View
+    </div>
+    <div class="nav-item" id="nav-6" onclick="goTo(6)">
+      <span class="nav-icon">≡</span> Action Log
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">AK</div>
+      <div>
+        <div class="user-name">Alex Kim</div>
+        <div class="user-role">Account Management</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar" id="topbar">
+  <div class="breadcrumb">
+    <span class="breadcrumb-cur" id="bc-cur">Risk Dashboard</span>
+  </div>
+  <div class="topbar-actions">
+    <span class="topbar-meta">Last updated 07:42 &nbsp;·&nbsp; 12 Mar 2026</span>
+    <button class="btn btn-outline btn-sm">Export</button>
+    <button class="btn btn-dark btn-sm">+ Flag account</button>
+  </div>
+</header>
+
+<!-- SCREENS -->
+<main class="main" id="main">
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 1: RISK DASHBOARD
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="s0">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Account Manager View · Alex Kim</div>
+    <div class="page-title">Your portfolio, <em>this morning</em></div>
+    <div class="page-desc">47 accounts tracked · Meridian last scored at 07:42 · 3 require your attention today</div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="kpi-label">Portfolio Size</div>
+      <div class="kpi-value">47</div>
+      <div class="kpi-note">Total accounts under management</div>
+    </div>
+    <div class="kpi" style="border-color: var(--red-mid);">
+      <div class="kpi-label">High Risk</div>
+      <div class="kpi-value" style="color:var(--red)">3</div>
+      <div class="kpi-delta" style="color:var(--red)">↑ 2 new since last week</div>
+    </div>
+    <div class="kpi" style="border-color: var(--amber-mid);">
+      <div class="kpi-label">Watch List</div>
+      <div class="kpi-value" style="color:var(--amber)">9</div>
+      <div class="kpi-delta" style="color:var(--amber)">↑ 3 moved up this week</div>
+    </div>
+    <div class="kpi" style="border-color: var(--green-mid);">
+      <div class="kpi-label">Interventions This Month</div>
+      <div class="kpi-value" style="color:var(--green)">11</div>
+      <div class="kpi-delta" style="color:var(--green)">2 churns prevented</div>
+    </div>
+  </div>
+
+  <div class="card card-flush">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--border);">
+      <div class="section-label" style="margin:0">All Accounts</div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-outline btn-sm" style="background:var(--red-bg); color:var(--red); border-color:var(--red-mid)">High Risk · 3</button>
+        <button class="btn btn-outline btn-sm">Watch · 9</button>
+        <button class="btn btn-outline btn-sm">All</button>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th>Sector</th>
+          <th>Risk Score</th>
+          <th>Status</th>
+          <th>Primary Signal</th>
+          <th>Last Contact</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="active-row" onclick="goTo(1)">
+          <td><strong>Hartwell Group</strong></td>
+          <td>Financial Services</td>
+          <td><span class="risk-score risk-high">78</span></td>
+          <td><span class="chip chip-red"><span class="chip-dot dot-red"></span>High Risk</span></td>
+          <td><span class="signal signal-bad">Ticket vol +40%</span></td>
+          <td><span style="color:var(--amber); font-weight:600; font-size:12.5px;">14 days ago</span></td>
+          <td><button class="btn btn-outline btn-sm" onclick="goTo(2);event.stopPropagation()">Intervene →</button></td>
+        </tr>
+        <tr>
+          <td><strong>Vantage Logistics</strong></td>
+          <td>Logistics</td>
+          <td><span class="risk-score risk-high">71</span></td>
+          <td><span class="chip chip-red"><span class="chip-dot dot-red"></span>High Risk</span></td>
+          <td><span class="signal signal-bad">NPS 4/10</span></td>
+          <td style="font-size:12.5px;">8 days ago</td>
+          <td><button class="btn btn-outline btn-sm">Intervene →</button></td>
+        </tr>
+        <tr>
+          <td><strong>Clearfield Partners</strong></td>
+          <td>Professional Services</td>
+          <td><span class="risk-score risk-high">68</span></td>
+          <td><span class="chip chip-red"><span class="chip-dot dot-red"></span>High Risk</span></td>
+          <td><span class="signal signal-bad">SLA breach ×3</span></td>
+          <td style="font-size:12.5px;">3 days ago</td>
+          <td><button class="btn btn-outline btn-sm">Intervene →</button></td>
+        </tr>
+        <tr>
+          <td>Nomura Staffing</td>
+          <td>Recruitment</td>
+          <td><span class="risk-score risk-med">54</span></td>
+          <td><span class="chip chip-amber"><span class="chip-dot dot-amber"></span>Watch</span></td>
+          <td><span class="signal signal-warn">NPS trending ↓</span></td>
+          <td style="font-size:12.5px;">2 days ago</td>
+          <td><button class="btn btn-ghost btn-sm">Review</button></td>
+        </tr>
+        <tr>
+          <td>Beacon Healthcare</td>
+          <td>Healthcare</td>
+          <td><span class="risk-score risk-med">48</span></td>
+          <td><span class="chip chip-amber"><span class="chip-dot dot-amber"></span>Watch</span></td>
+          <td><span class="signal signal-warn">Engagement drop</span></td>
+          <td style="font-size:12.5px;">Yesterday</td>
+          <td><button class="btn btn-ghost btn-sm">Review</button></td>
+        </tr>
+        <tr>
+          <td>Aldgate Technology</td>
+          <td>Technology</td>
+          <td><span class="risk-score risk-low">22</span></td>
+          <td><span class="chip chip-green"><span class="chip-dot dot-green"></span>Healthy</span></td>
+          <td><span class="signal signal-good">NPS 9/10</span></td>
+          <td style="font-size:12.5px;">Yesterday</td>
+          <td style="color:var(--ink-4);">—</td>
+        </tr>
+        <tr>
+          <td>Portsmith Group</td>
+          <td>Consumer</td>
+          <td><span class="risk-score risk-low">18</span></td>
+          <td><span class="chip chip-green"><span class="chip-dot dot-green"></span>Healthy</span></td>
+          <td><span class="signal signal-good">No open tickets</span></td>
+          <td style="font-size:12.5px;">4 days ago</td>
+          <td style="color:var(--ink-4);">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ai-note">
+    <div class="ai-note-header">
+      <span class="ai-tag">How Meridian works</span>
+    </div>
+    <p>Scores are calculated nightly from your CRM, ticketing platform, NPS feed, and service delivery logs <span class="flag">[systems to confirm in discovery]</span>. Each account's score reflects its historical correlation with past churn events — high-risk thresholds are calibrated per sector. Scores above 65 trigger a red flag; above 45 trigger amber. You are seeing today's run.</p>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 2: ACCOUNT DETAIL
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s1">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow"><span style="cursor:pointer;color:var(--ink-3);" onclick="goTo(0)">Dashboard</span> &nbsp;/&nbsp; Account Detail</div>
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:20px;">
+      <div>
+        <div class="page-title">Hartwell Group</div>
+        <div class="page-desc">Financial Services &nbsp;·&nbsp; Account Manager: Alex Kim &nbsp;·&nbsp; Client since March 2022</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-shrink:0; padding-top:8px;">
+        <span class="chip chip-red" style="font-size:12.5px; padding:5px 14px;"><span class="chip-dot dot-red"></span>Risk Score: 78</span>
+        <button class="btn btn-dark" onclick="goTo(2)">Prepare intervention →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2">
+      <div class="card">
+        <div class="section-label">Risk Signal Breakdown</div>
+        <div class="bar-list">
+          <div class="bar-item">
+            <div class="bar-lbl">Support ticket volume (7d)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:82%; background:var(--red);"></div></div>
+            <div class="bar-pct" style="color:var(--red);">+40%</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-lbl">Portal engagement drop</div>
+            <div class="bar-track"><div class="bar-fill" style="width:72%; background:var(--red);"></div></div>
+            <div class="bar-pct" style="color:var(--red);">14d</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-lbl">NPS score trend</div>
+            <div class="bar-track"><div class="bar-fill" style="width:58%; background:var(--amber);"></div></div>
+            <div class="bar-pct" style="color:var(--amber);">5/10</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-lbl">SLA compliance</div>
+            <div class="bar-track"><div class="bar-fill" style="width:44%; background:var(--amber);"></div></div>
+            <div class="bar-pct" style="color:var(--amber);">71%</div>
+          </div>
+        </div>
+        <div class="ai-note">
+          <div class="ai-note-header"><span class="ai-tag">Signal weighting</span></div>
+          <p>Ticket volume carries the highest predictive weight (0.38) for Financial Services accounts at this size. Weights are learned from 18 months of historical churn data. <span class="flag">[confirm segment weights in discovery]</span></p>
+          <div class="conf-row">
+            <span class="conf-label">Model confidence</span>
+            <div class="conf-track"><div class="conf-fill" style="width:84%"></div></div>
+            <span class="conf-val">84%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="section-label">Account Activity</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--red);"></div>
+            <div class="tl-time">Today, 07:42</div>
+            <div class="tl-text">Meridian flagged as High Risk. Score crossed threshold of 65.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--amber);"></div>
+            <div class="tl-time">8 Mar — Ticket #4821 opened</div>
+            <div class="tl-text">"Payroll processing delay — urgent." Still open, 4 days overdue against <span class="flag">[X]-day SLA</span>.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--amber);"></div>
+            <div class="tl-time">5 Mar — NPS survey response</div>
+            <div class="tl-text">Score: 5/10. Previous response (December): 8/10. Decline of 37.5% detected.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--border-hi);"></div>
+            <div class="tl-time">26 Feb — Last portal login</div>
+            <div class="tl-text">Primary contact (Sarah Hartwell, Operations Director) has not re-engaged.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--red);"></div>
+            <div class="tl-time">21 Feb — Competitor mention detected</div>
+            <div class="tl-text">AI detected a competitor reference in email thread linked to ticket #4791.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-label">AI Summary · Latest Correspondence</div>
+        <p class="body" style="font-size:13.5px; font-style:italic; color:var(--ink-1); line-height:1.7;">
+          "The client has expressed frustration twice in the past three weeks around payroll processing turnaround. Their primary contact referenced a competitor by name in one email. Tone across recent tickets has become markedly less collaborative."
+        </p>
+        <div class="ai-note">
+          <div class="ai-note-header"><span class="ai-tag">Source</span></div>
+          <p>Synthesised from NLP analysis of 6 support tickets and 2 email threads from the past 30 days. <span class="flag">[data access and privacy constraints to confirm in discovery]</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 3: INTERVENTION
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s2">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow"><span style="cursor:pointer;color:var(--ink-3);" onclick="goTo(1)">Hartwell Group</span> &nbsp;/&nbsp; Intervention</div>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div class="page-title">Prepare <em>intervention</em></div>
+        <div class="page-desc">AI-drafted outreach ready for your review. Nothing is sent until you approve.</div>
+      </div>
+      <span class="chip chip-red" style="padding:5px 14px; margin-top:8px;"><span class="chip-dot dot-red"></span>Risk 78 — High</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2">
+      <div class="section-label">Drafted outreach</div>
+      <div class="email-card">
+        <div class="email-toolbar">
+          <span class="email-toolbar-label">AI Draft — Review and approve before sending</span>
+          <span class="ai-tag">AI Generated</span>
+        </div>
+        <div class="email-field">
+          <span class="email-field-key">To</span>
+          <span class="email-field-val">Sarah Hartwell, Operations Director &lt;s.hartwell@hartwellgroup.com&gt;</span>
+        </div>
+        <div class="email-field">
+          <span class="email-field-key">CC</span>
+          <span class="email-field-val">Alex Kim &lt;a.kim@clearpath.com&gt;</span>
+        </div>
+        <div class="email-field">
+          <span class="email-field-key">Re</span>
+          <span class="email-field-val">Your recent service requests — a personal note from me</span>
+        </div>
+        <div class="email-body-text">
+          <p>Dear Sarah,</p>
+          <p>I wanted to reach out directly regarding your recent service requests, particularly ticket #4821 on payroll processing. I can see this has remained open longer than it should have and I want to make sure we resolve it for you without further delay.</p>
+          <p>I have escalated this personally to our senior delivery team. You should expect a full update and resolution by <span class="highlight">Friday 14 March — [confirm from queue system, integration required]</span>.</p>
+          <p>I would welcome 20 minutes with you this week to discuss your experience more broadly. Could I suggest a time that works for you?</p>
+          <p>Warm regards,<br>Alex Kim<br>Account Manager, Clearpath Workforce Solutions</p>
+        </div>
+      </div>
+
+      <div class="ai-note" style="margin-top:14px;">
+        <div class="ai-note-header"><span class="ai-tag">How this draft was built</span></div>
+        <ul>
+          <li>Account history, open ticket context, and communication tone guidelines for Financial Services accounts were used to generate the draft</li>
+          <li>Client name, ticket reference, and contact details sourced from CRM <span class="flag">[system to confirm]</span></li>
+          <li>Suggested resolution date requires live queue integration <span class="flag">[confirm in discovery]</span></li>
+          <li>This draft cannot be sent automatically. Your approval is the final step.</li>
+        </ul>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:16px;">
+        <button class="btn btn-green-solid" onclick="goTo(6)">Approve and send →</button>
+        <button class="btn btn-outline">Edit draft</button>
+        <button class="btn btn-red-soft btn-sm">Discard</button>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="section-label">Recommended actions</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <div class="card" style="padding:16px 18px;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="font-size:20px; line-height:1; padding-top:2px;">✉</div>
+            <div>
+              <div class="card-title">Send proactive outreach</div>
+              <p class="body" style="font-size:12px; margin-top:3px;">Acknowledge the delay, confirm a resolution timeline, and invite a call. Draft is ready above.</p>
+              <span class="chip chip-red" style="margin-top:8px; font-size:10.5px; padding:2px 9px;">Priority: Immediate</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px 18px;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="font-size:20px; line-height:1; padding-top:2px;">↑</div>
+            <div>
+              <div class="card-title">Escalate ticket #4821</div>
+              <p class="body" style="font-size:12px; margin-top:3px;">Route to senior delivery. Currently 4 days past SLA. Carries highest weight in this account's risk score.</p>
+              <button class="btn btn-outline btn-sm" style="margin-top:8px;">Escalate now</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px 18px;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="font-size:20px; line-height:1; padding-top:2px;">◌</div>
+            <div>
+              <div class="card-title">Schedule check-in</div>
+              <p class="body" style="font-size:12px; margin-top:3px;">Add a 20-minute relationship call within the next 5 days. Mentioned in the draft above.</p>
+              <button class="btn btn-outline btn-sm" style="margin-top:8px;">Add to calendar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background:var(--accent-bg); border-color:rgba(28,74,62,0.15);">
+        <div class="section-label" style="color:var(--accent-2);">Post-intervention monitoring</div>
+        <p class="body" style="font-size:12.5px;">Once approved and sent, Meridian will monitor Hartwell Group's risk score daily for 14 days. If the score does not begin declining within 5 days, you will be alerted. Every step is logged.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 4: ROOT CAUSE ANALYSIS
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s3">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Quality View · Sam Reeves, Head of Service Quality</div>
+    <div class="page-title">What is <em>driving</em> dissatisfaction</div>
+    <div class="page-desc">March 2026 · Pattern analysis across all flagged accounts</div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="kpi-label">Flagged accounts</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-note">This month</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Distinct root causes</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-note">AI-clustered this month</div>
+    </div>
+    <div class="kpi" style="border-color:var(--red-mid);">
+      <div class="kpi-label">Primary cause</div>
+      <div class="kpi-value" style="font-size:20px; letter-spacing:-.3px;">SLA Breach</div>
+      <div class="kpi-delta" style="color:var(--red);">61% of flagged accounts</div>
+    </div>
+    <div class="kpi" style="border-color:var(--amber-mid);">
+      <div class="kpi-label">Recurring causes</div>
+      <div class="kpi-value" style="color:var(--amber);">2</div>
+      <div class="kpi-note">Appearing 3+ months running</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2">
+      <div class="card">
+        <div class="section-label">Dissatisfaction by root cause — March 2026</div>
+        <div class="bar-list" style="margin-top:8px;">
+          <div class="bar-item">
+            <div class="bar-lbl">Payroll processing SLA breach</div>
+            <div class="bar-track"><div class="bar-fill" style="width:61%; background:var(--red);"></div></div>
+            <div class="bar-pct" style="color:var(--red);">61%</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-lbl">Onboarding delay (first 30 days)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:22%; background:var(--amber);"></div></div>
+            <div class="bar-pct" style="color:var(--amber);">22%</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-lbl">Support response quality</div>
+            <div class="bar-track"><div class="bar-fill" style="width:11%; background:var(--ink-3);"></div></div>
+            <div class="bar-pct">11%</div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-lbl">Reporting and portal issues</div>
+            <div class="bar-track"><div class="bar-fill" style="width:6%; background:var(--border-hi);"></div></div>
+            <div class="bar-pct">6%</div>
+          </div>
+        </div>
+
+        <div class="ai-note">
+          <div class="ai-note-header"><span class="ai-tag">How clusters are built</span></div>
+          <ul>
+            <li>Meridian groups dissatisfaction signals by operational cause using ticket category tags, SLA breach logs, and NLP-classified email topics across all flagged accounts</li>
+            <li>Clusters are ranked by frequency and estimated contribution to risk score elevation</li>
+            <li>This month's distribution is compared against the prior 3 months to surface trends</li>
+            <li>Clustering confidence: 79% &nbsp;<span class="flag">[ticket taxonomy to confirm in discovery]</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="section-label">Process improvement priorities for SSA</div>
+        <p class="body" style="font-size:12.5px; margin-bottom:14px;">Root cause data translated into process redesign priorities. SSA's mandate; Meridian's evidence base.</p>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="padding:14px 16px; border-radius:var(--r-sm); background:var(--red-bg); border:1px solid var(--red-mid);">
+            <div class="card-title" style="color:var(--red); font-size:13px;">Priority 1 — Payroll Processing SLA</div>
+            <p class="body" style="font-size:12px; margin-top:4px;">7 of 12 flagged accounts cite payroll delays. Addressing this alone is projected to reduce flagged accounts by ~58%.</p>
+          </div>
+          <div style="padding:14px 16px; border-radius:var(--r-sm); background:var(--amber-bg); border:1px solid var(--amber-mid);">
+            <div class="card-title" style="color:var(--amber); font-size:13px;">Priority 2 — 30-Day Onboarding Process</div>
+            <p class="body" style="font-size:12px; margin-top:4px;">3 accounts flagged in months 1–2 of tenure. Onboarding completion rate is 72% within the target window <span class="flag">[confirm metric]</span>.</p>
+          </div>
+          <div style="padding:14px 16px; border-radius:var(--r-sm); background:var(--canvas); border:1px solid var(--border);">
+            <div class="card-title" style="font-size:13px;">Priority 3 — Support Response Quality</div>
+            <p class="body" style="font-size:12px; margin-top:4px;">Smaller cohort but highest average risk score. May indicate a specific team or shift pattern worth investigating.</p>
+          </div>
+        </div>
+
+        <div class="ai-note" style="margin-top:14px;">
+          <div class="ai-note-header"><span class="ai-tag">SSA + Conquer partnership note</span></div>
+          <p>This view is where the collaboration between SSA and Conquer is most visible. Meridian surfaces the operational root cause — SSA designs the process improvement that addresses it. Neither does this alone.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 5: SLA MONITOR
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s4">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Quality View · Service delivery performance</div>
+    <div class="page-title">SLA and quality <em>monitor</em></div>
+    <div class="page-desc">March 2026 &nbsp;·&nbsp; <span class="flag">All SLA targets are placeholders — confirm in discovery</span></div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi" style="border-color:var(--red-mid);">
+      <div class="kpi-label">Overall SLA Compliance</div>
+      <div class="kpi-value" style="color:var(--red);">74%</div>
+      <div class="kpi-delta" style="color:var(--red);">Target: 95% <span class="flag">[confirm]</span></div>
+    </div>
+    <div class="kpi" style="border-color:var(--amber-mid);">
+      <div class="kpi-label">Avg Resolution Time</div>
+      <div class="kpi-value" style="color:var(--amber);">4.2d</div>
+      <div class="kpi-delta" style="color:var(--amber);">Target: 2d <span class="flag">[confirm]</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Tickets Overdue</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-delta" style="color:var(--red);">↑ 6 vs last month</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">CSAT Score</div>
+      <div class="kpi-value" style="color:var(--amber);">6.4</div>
+      <div class="kpi-delta" style="color:var(--amber);">Target: 8.0 <span class="flag">[confirm]</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2">
+      <div class="card card-flush">
+        <div style="padding:14px 20px; border-bottom:1px solid var(--border);">
+          <div class="section-label" style="margin:0;">SLA performance by service category</div>
+        </div>
+        <table class="table">
+          <thead>
+            <tr><th>Category</th><th>Compliance</th><th>Avg time</th><th>Overdue</th><th>Meridian flag</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Payroll Processing</strong></td>
+              <td style="color:var(--red); font-weight:600;">58%</td>
+              <td style="color:var(--red);">6.1 days</td>
+              <td style="color:var(--red); font-weight:600;">11</td>
+              <td><span class="ai-tag">Root cause #1</span></td>
+            </tr>
+            <tr>
+              <td><strong>Employee Onboarding</strong></td>
+              <td style="color:var(--amber); font-weight:600;">72%</td>
+              <td style="color:var(--amber);">4.8 days</td>
+              <td style="color:var(--amber); font-weight:600;">4</td>
+              <td><span class="ai-tag">Root cause #2</span></td>
+            </tr>
+            <tr>
+              <td>Benefits Administration</td>
+              <td style="color:var(--green); font-weight:600;">91%</td>
+              <td>2.1 days</td>
+              <td>1</td>
+              <td style="color:var(--ink-4);">—</td>
+            </tr>
+            <tr>
+              <td>Compliance Reporting</td>
+              <td style="color:var(--green); font-weight:600;">88%</td>
+              <td>2.8 days</td>
+              <td>2</td>
+              <td style="color:var(--ink-4);">—</td>
+            </tr>
+            <tr>
+              <td>General Enquiries</td>
+              <td style="color:var(--amber); font-weight:600;">79%</td>
+              <td>3.2 days</td>
+              <td>0</td>
+              <td style="color:var(--ink-4);">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="section-label">30-day SLA compliance trend</div>
+        <div class="bar-list">
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">10 Feb</div><div class="bar-track"><div class="bar-fill" style="width:85%; background:var(--amber);"></div></div><div class="bar-pct" style="color:var(--amber);">85%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">17 Feb</div><div class="bar-track"><div class="bar-fill" style="width:82%; background:var(--amber);"></div></div><div class="bar-pct" style="color:var(--amber);">82%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">24 Feb</div><div class="bar-track"><div class="bar-fill" style="width:78%; background:var(--amber);"></div></div><div class="bar-pct" style="color:var(--amber);">78%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">3 Mar</div><div class="bar-track"><div class="bar-fill" style="width:75%; background:var(--red);"></div></div><div class="bar-pct" style="color:var(--red);">75%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">10 Mar</div><div class="bar-track"><div class="bar-fill" style="width:74%; background:var(--red);"></div></div><div class="bar-pct" style="color:var(--red);">74%</div></div>
+        </div>
+        <div class="ai-note" style="margin-top:12px;">
+          <div class="ai-note-header"><span class="ai-tag">Trajectory alert</span></div>
+          <p>Compliance has declined 11 percentage points over 30 days. At current trajectory, Meridian projects it will fall below 70% within 14 days without operational intervention. Confidence: 72%.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 6: EXECUTIVE
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s5">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Executive View · Jordan Hayes, COO</div>
+    <div class="page-title">Programme <em>performance</em></div>
+    <div class="page-desc">March 2026 &nbsp;·&nbsp; <span class="flag">Revenue figures are illustrative — confirm average account value in discovery</span></div>
+  </div>
+
+  <div class="grid-4">
+    <div class="kpi" style="border-color:var(--green-mid);">
+      <div class="kpi-label">Accounts saved this month</div>
+      <div class="kpi-value" style="color:var(--green);">11</div>
+      <div class="kpi-delta" style="color:var(--green);">2 confirmed churns prevented</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Revenue protected</div>
+      <div class="kpi-value">£420k</div>
+      <div class="kpi-note"><span class="flag">Illustrative — confirm avg account value</span></div>
+    </div>
+    <div class="kpi" style="border-color:var(--green-mid);">
+      <div class="kpi-label">Churn rate (current)</div>
+      <div class="kpi-value" style="color:var(--amber);">3.8%</div>
+      <div class="kpi-delta" style="color:var(--green);">↓ 1.2pp vs 6 months ago</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Prediction accuracy</div>
+      <div class="kpi-value" style="color:var(--accent);">81%</div>
+      <div class="kpi-delta" style="color:var(--green);">↑ 7pp since go-live</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-2">
+      <div class="card">
+        <div class="section-label">Churn rate — 6 month trend</div>
+        <div class="bar-list" style="margin-top:8px;">
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">Sep 25</div><div class="bar-track"><div class="bar-fill" style="width:50%; background:var(--red);"></div></div><div class="bar-pct" style="color:var(--red);">5.0%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">Oct 25</div><div class="bar-track"><div class="bar-fill" style="width:46%; background:var(--red);"></div></div><div class="bar-pct" style="color:var(--red);">4.6%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">Nov 25</div><div class="bar-track"><div class="bar-fill" style="width:44%; background:var(--amber);"></div></div><div class="bar-pct" style="color:var(--amber);">4.4%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">Dec 25</div><div class="bar-track"><div class="bar-fill" style="width:42%; background:var(--amber);"></div></div><div class="bar-pct" style="color:var(--amber);">4.2%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">Jan 26</div><div class="bar-track"><div class="bar-fill" style="width:40%; background:var(--amber);"></div></div><div class="bar-pct" style="color:var(--amber);">4.0%</div></div>
+          <div class="bar-item"><div class="bar-lbl bar-lbl-sm">Feb 26</div><div class="bar-track"><div class="bar-fill" style="width:38%; background:var(--green);"></div></div><div class="bar-pct" style="color:var(--green);">3.8%</div></div>
+        </div>
+        <div class="ai-note">
+          <div class="ai-note-header"><span class="ai-tag">Correlation note</span></div>
+          <p>The downward trend since November correlates with increased proactive interventions following Meridian's deployment. This is correlation, not confirmed causation. <span class="flag">[churn source system to confirm in discovery]</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card" style="margin-bottom:14px;">
+        <div class="section-label">Revenue protected — methodology</div>
+        <p class="body" style="font-size:13px; line-height:1.75;">
+          <strong>11 accounts flagged → 9 did not churn within 60 days of intervention</strong><br>
+          Intervention success rate: 82%<br>
+          9 accounts × £46,700 average annual value = <strong style="color:var(--green);">£420,300</strong><br><br>
+          <span class="flag">Average account value is a placeholder. Confirm with commercial data in discovery before presenting this figure.</span>
+        </p>
+      </div>
+      <div class="card">
+        <div class="section-label">Programme health</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span class="body" style="font-size:12.5px;">Model prediction accuracy</span>
+              <span style="font-weight:700; color:var(--accent); font-size:12.5px;">81%</span>
+            </div>
+            <div class="conf-track" style="height:4px;"><div class="conf-fill" style="width:81%;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span class="body" style="font-size:12.5px;">Intervention success rate</span>
+              <span style="font-weight:700; color:var(--green); font-size:12.5px;">82%</span>
+            </div>
+            <div class="conf-track" style="height:4px;"><div class="conf-fill" style="width:82%; background:var(--green);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span class="body" style="font-size:12.5px;">SLA compliance (all accounts)</span>
+              <span style="font-weight:700; color:var(--red); font-size:12.5px;">74%</span>
+            </div>
+            <div class="conf-track" style="height:4px;"><div class="conf-fill" style="width:74%; background:var(--red);"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SCREEN 7: ACTION LOG
+══════════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s6">
+<div class="page">
+<div class="stagger">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Governance · Full audit trail</div>
+    <div class="page-title">AI action <em>log</em></div>
+    <div class="page-desc">Every recommendation, human decision, and outcome — March 2026</div>
+  </div>
+
+  <div class="card card-flush">
+    <div style="padding:14px 20px; background:var(--canvas); border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:center;">
+      <span class="section-label" style="margin:0; flex:1;">All actions</span>
+      <span class="chip chip-neutral" style="font-size:11px;">AI Generated</span>
+      <span class="chip chip-green" style="font-size:11px;"><span class="chip-dot dot-green"></span>Human approved</span>
+      <span class="chip chip-amber" style="font-size:11px;"><span class="chip-dot dot-amber"></span>Pending review</span>
+      <span class="chip chip-red" style="font-size:11px;"><span class="chip-dot dot-red"></span>Overridden</span>
+    </div>
+    <table class="table">
+      <thead>
+        <tr><th>Timestamp</th><th>Type</th><th>Account</th><th>AI recommendation</th><th>Human decision</th><th>Outcome</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono" style="color:var(--ink-3);">12 Mar, 07:42</td>
+          <td><span class="ai-tag">Risk flag</span></td>
+          <td><strong>Hartwell Group</strong></td>
+          <td style="font-size:12.5px;">Escalate to High Risk (score: 78)</td>
+          <td><span class="chip chip-green" style="font-size:10.5px; padding:2px 8px;">Auto-applied</span></td>
+          <td style="font-size:12.5px; color:var(--ink-2);">Intervention in progress</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--ink-3);">11 Mar, 14:20</td>
+          <td><span class="ai-tag">Draft email</span></td>
+          <td><strong>Vantage Logistics</strong></td>
+          <td style="font-size:12.5px;">Proactive outreach re: NPS decline</td>
+          <td><span class="chip chip-green" style="font-size:10.5px; padding:2px 8px;"><span class="chip-dot dot-green"></span>Approved — J. Park</span></td>
+          <td style="font-size:12.5px; color:var(--ink-2);">Sent. Risk score stable.</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--ink-3);">10 Mar, 09:05</td>
+          <td><span class="ai-tag">Draft email</span></td>
+          <td><strong>Clearfield Partners</strong></td>
+          <td style="font-size:12.5px;">Proactive outreach re: SLA breach</td>
+          <td><span class="chip chip-red" style="font-size:10.5px; padding:2px 8px;"><span class="chip-dot dot-red"></span>Overridden — M. Chen</span></td>
+          <td style="font-size:12.5px; color:var(--ink-2);">Manual call made instead</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--ink-3);">8 Mar, 16:30</td>
+          <td><span class="ai-tag">Escalation</span></td>
+          <td><strong>Nomura Staffing</strong></td>
+          <td style="font-size:12.5px;">Escalate ticket #4801 to senior delivery</td>
+          <td><span class="chip chip-green" style="font-size:10.5px; padding:2px 8px;"><span class="chip-dot dot-green"></span>Approved — A. Kim</span></td>
+          <td style="font-size:12.5px; color:var(--ink-2);">Resolved in 24h. Score dropped.</td>
+        </tr>
+        <tr>
+          <td class="mono" style="color:var(--ink-3);">3 Mar, 08:15</td>
+          <td><span class="ai-tag">Draft email</span></td>
+          <td><strong>Vantage Logistics</strong></td>
+          <td style="font-size:12.5px;">Follow-up on NPS survey non-response</td>
+          <td><span class="chip chip-amber" style="font-size:10.5px; padding:2px 8px;"><span class="chip-dot dot-amber"></span>Pending — A. Kim</span></td>
+          <td style="font-size:12.5px; color:var(--ink-3);">Awaiting review</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ai-note" style="margin-top:14px;">
+    <div class="ai-note-header"><span class="ai-tag">How the audit trail works</span></div>
+    <ul>
+      <li>Every AI recommendation is logged with timestamp, data inputs, and confidence score at point of generation</li>
+      <li>Human decisions — approve, edit, override — are recorded against each recommendation. This is the feedback loop that improves the model over time</li>
+      <li>Overrides are especially valuable: when a human takes a different action, Meridian notes the outcome and recalibrates recommendation weighting accordingly</li>
+      <li>The full log is available for compliance review at any time. Every action is attributable and auditable.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+</div>
+
+</main>
+
+<!-- ASSUMPTION NOTICE -->
+<div class="assumption-bar">
+  <span>⚠ POC v0 · All company names, figures, and system references are illustrative only · Conquer AI × SSA &amp; Company · Station 6 · 12 March 2026</span>
+</div>
+
+<script>
+const labels = [
+  'Risk Dashboard',
+  'Account Detail — Hartwell Group',
+  'Intervention — Hartwell Group',
+  'Root Cause Analysis',
+  'SLA Monitor',
+  'Executive Overview',
+  'Action Log'
+];
+
+const screens = document.querySelectorAll('.screen');
+let cur = 0;
+
+function goTo(n) {
+  if (n === cur) return;
+  const prev = cur;
+  cur = n;
+
+  screens[prev].classList.remove('active');
+  screens[prev].classList.add('out');
+  setTimeout(() => screens[prev].classList.remove('out'), 320);
+
+  screens[cur].classList.add('active');
+  screens[cur].scrollTop = 0;
+
+  document.getElementById('bc-cur').textContent = labels[cur];
+
+  document.querySelectorAll('.nav-item').forEach((el, i) => {
+    el.classList.toggle('active', i === cur);
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(Math.min(cur + 1, screens.length - 1));
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(Math.max(cur - 1, 0));
+});
+</script>
+</body>
+</html>
